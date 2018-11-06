@@ -5,18 +5,21 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
 const apiRouter = require('./apirouter.js');
+const authRouter = require('./authrouter').router;
+const isUserLogged = require('./authrouter').isUserLogged;
+const config = require('./config');
+const log = config.logger;
 
 mongoose
-  .connect(
-    'mongodb://localhost:27017/mycatchdb',
+  .connect(config.dbConnection,
     { useNewUrlParser: true }
   )
   .then(
     () => {
-      console.log('MongoDB connection success');
+      log.info('MongoDB connection success');
     },
     error => {
-      console.log('MongoDB connection failure! Error: ' + error);
+      log.error('MongoDB connection failure! Error: ' + error);
       process.exit(-1);
     }
   );
@@ -24,6 +27,8 @@ mongoose
 app.use(bodyParser.json());
 
 // Setup routes
-app.use('/api', apiRouter);
+app.use('/auth', authRouter);
+
+app.use('/api', isUserLogged, apiRouter);
 
 module.exports = app;
