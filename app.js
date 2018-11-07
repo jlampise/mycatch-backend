@@ -10,6 +10,8 @@ const isUserLogged = require('./authrouter').isUserLogged;
 const config = require('./config');
 const log = config.logger;
 
+app.enable('trust proxy');
+
 mongoose
   .connect(
     config.dbConnection,
@@ -33,7 +35,7 @@ app.use('/auth', authRouter);
 app.use('/api', isUserLogged, apiRouter);
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('public'));
+  app.use(express.static('build'));
 
   app.get('*', (req, res) => {
     res.sendFile(__dirname + '/build/index.html');

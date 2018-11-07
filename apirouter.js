@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Catch = require('./models/catch');
+const rateLimit = require('express-rate-limit');
+
+const postCatchLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message:
+    'Too many post-requests from this IP. Please wait a while.'
+});
 
 router.get('/catches', function(req, res) {
   Catch.find({}, (err, catches) => {
@@ -11,7 +19,7 @@ router.get('/catches', function(req, res) {
   });
 });
 
-router.post('/catches', function(req, res) {
+router.post('/catches', postCatchLimiter, function(req, res) {
   const newCatch = new Catch({
     pokemon: req.body.pokemon,
     creator: req.user,

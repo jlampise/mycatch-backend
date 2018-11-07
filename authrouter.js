@@ -2,8 +2,14 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('./models/user');
 const bcrypt = require('bcrypt-nodejs');
+const rateLimit = require('express-rate-limit');
 
-
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  message:
+    'Too many accounts created from this IP, please try again after an hour'
+});
 
 // user database
 const loggedUsers = [];
@@ -17,7 +23,7 @@ const isUserLogged = (req, res, next) => {
     }
   }
   return res.status(403).json({ message: 'not allowed' });
-}
+};
 
 const createToken = () => {
   let token = '';
@@ -27,8 +33,7 @@ const createToken = () => {
     token = token + letters[j];
   }
   return token;
-}
-
+};
 
 function createHash(pw) {
   return bcrypt.hashSync(pw, bcrypt.genSaltSync(8), null);
@@ -40,7 +45,7 @@ function isPasswordValid(pw, hash) {
 
 // LOGIN API
 
-router.post('/register', function(req, res) {
+router.post('/register', registerLimiter, function(req, res) {
   if (
     !req.body.username ||
     !req.body.password ||
@@ -54,7 +59,7 @@ router.post('/register', function(req, res) {
     username: req.body.username,
     password: createHash(req.body.password)
   });
-  user.save((err) => {
+  user.save(err => {
     if (err) {
       return res.status(409).json({ message: 'username already in use' });
     } else {
@@ -64,7 +69,6 @@ router.post('/register', function(req, res) {
 });
 
 router.post('/login', function(req, res) {
-
   userModel.findOne({ username: req.body.username }, (err, user) => {
     if (err) {
       return res.status.json({ message: 'Wrong username or password' });
@@ -90,7 +94,7 @@ router.post('/logout', function(req, res) {
   return res.status(404).json({ message: 'not found' });
 });
 
-module.exports = { 
+module.exports = {
   router,
   isUserLogged
 };
