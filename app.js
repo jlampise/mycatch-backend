@@ -11,7 +11,8 @@ const config = require('./config');
 const log = config.logger;
 
 mongoose
-  .connect(config.dbConnection,
+  .connect(
+    config.dbConnection,
     { useNewUrlParser: true }
   )
   .then(
@@ -30,5 +31,13 @@ app.use(bodyParser.json());
 app.use('/auth', authRouter);
 
 app.use('/api', isUserLogged, apiRouter);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('public'));
+
+  app.get('*', (req, res) => {
+    res.sendFile(__dirname + '/build/index.html');
+  });
+}
 
 module.exports = app;
