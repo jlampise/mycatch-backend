@@ -70,8 +70,8 @@ router.post('/register', registerLimiter, function(req, res) {
 
 router.post('/login', function(req, res) {
   userModel.findOne({ username: req.body.username }, (err, user) => {
-    if (err) {
-      return res.status.json({ message: 'Wrong username or password' });
+    if (err || !user) {
+      return res.status(403).json({ message: 'Wrong username or password' });
     } else {
       if (isPasswordValid(req.body.password, user.password)) {
         const token = createToken();
