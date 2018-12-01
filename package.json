@@ -14,10 +14,10 @@
     "body-parser": "^1.18.3",
     "bunyan": "^1.8.12",
     "express": "^4.16.4",
-    "express-rate-limit": "^3.3.0",
-    "mongoose": "^5.3.8"
+    "express-rate-limit": "^3.3.2",
+    "mongoose": "^5.3.14"
   },
   "devDependencies": {
-    "eslint": "^5.8.0"
+    "eslint": "^5.9.0"
   }
 }
